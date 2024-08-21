@@ -1,10 +1,10 @@
 import os
 
-import strawberry
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
+from strawberry import Schema
 from strawberry.fastapi import GraphQLRouter
 
 from src.database_service import DatabaseService
@@ -15,7 +15,7 @@ load_dotenv()
 app = FastAPI()
 database_url = os.getenv("DATABASE_URL")
 database_service = DatabaseService(database_url=database_url)
-schema = strawberry.Schema(query=Query, mutation=Mutation)
+schema = Schema(query=Query, mutation=Mutation)
 
 
 async def get_context(db: Session = Depends(database_service.get_db)):

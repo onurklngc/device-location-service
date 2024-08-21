@@ -51,6 +51,14 @@ class Query:
         return None
 
     @strawberry.field
+    def device_by_name(self, info: Info, device_name: str) -> Optional[DeviceType]:
+        session: Session = info.context['db']
+        device = session.query(Device).filter(Device.name == device_name).first()
+        if device:
+            return DeviceType(id=device.id, name=device.name)
+        return None
+
+    @strawberry.field
     def location_history_by_device(self, info: Info, device_id: int) -> List[LocationType]:
         session: Session = info.context['db']
         locations = get_location_history_by_device(device_id, session)

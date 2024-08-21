@@ -25,3 +25,4 @@ class DatabaseService:
 if __name__ == '__main__':
     current_database_url = os.getenv("DATABASE_URL")
     db_service = DatabaseService(database_url=current_database_url)
+    db_service.get_db()

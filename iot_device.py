@@ -1,15 +1,17 @@
 import json
 import logging
+import os
 import random
 import socket
 import time
 
 import config as cfg
 
-TCP_SERVER_HOST = '127.0.0.1'
-TCP_SERVER_PORT = 65432
 DEVICE_ID = 1
 DATA_SEND_INTERVAL = 5
+
+tcp_server_host = os.getenv("TCP_SERVER_HOST", "0.0.0.0")
+tcp_server_port = int(os.getenv("TCP_SERVER_PORT", "65432"))
 logger = logging.getLogger(__name__)
 
 
@@ -35,7 +37,7 @@ class IoTDevice:
 def send_gps_data(gps_data: dict):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         try:
-            sock.connect((TCP_SERVER_HOST, TCP_SERVER_PORT))
+            sock.connect((tcp_server_host, tcp_server_port))
             message = json.dumps(gps_data).encode('utf-8')
             sock.sendall(message)
             logger.info(f"Sent GPS data: {gps_data}")
