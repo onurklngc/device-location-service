@@ -6,9 +6,8 @@ Base = declarative_base()
 
 class Device(Base):
     __tablename__ = "devices"
-
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    name = Column(String(255), unique=True, index=True)
 
 
 class Location(Base):
