@@ -8,3 +8,4 @@ pydantic~=2.8.2
 python-dotenv~=1.0.1
 strawberry-graphql[fastapi]~=0.237.3
 SQLAlchemy~=1.4.53
+requests~=2.32.3

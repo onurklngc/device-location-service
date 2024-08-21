@@ -21,7 +21,7 @@ class IoTDevice:
         self.latitude = round(random.uniform(-90.0, 90.0), 6)
         self.longitude = round(random.uniform(-180.0, 180.0), 6)
 
-    def move_device(self):
+    def move(self):
         self.latitude = round(random.uniform(-0.0001, 0.0001) + self.latitude, 6)
         self.longitude = round(random.uniform(-0.0001, 0.0001) + self.longitude, 6)
 
@@ -34,10 +34,10 @@ class IoTDevice:
         }
 
 
-def send_gps_data(gps_data: dict):
+def send_gps_data(gps_data: dict, tcp_host=tcp_server_host, tcp_port=tcp_server_port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         try:
-            sock.connect((tcp_server_host, tcp_server_port))
+            sock.connect((tcp_host, tcp_port))
             message = json.dumps(gps_data).encode('utf-8')
             sock.sendall(message)
             logger.info(f"Sent GPS data: {gps_data}")
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     iot_device = IoTDevice(device_id=DEVICE_ID)
     while True:
-        iot_device.move_device()
+        iot_device.move()
         device_gps_data = iot_device.generate_gps_data()
         send_gps_data(device_gps_data)
         time.sleep(DATA_SEND_INTERVAL)

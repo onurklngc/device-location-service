@@ -2,8 +2,8 @@ import logging
 import os
 
 import config as cfg
-from iot_device import IoTDevice
-from src.publisher_service import RabbitMQPublisherService
+from src.iot_device import IoTDevice
+from src.service.publisher_service import RabbitMQPublisherService
 
 IOT_DEVICE_ID = 1
 
