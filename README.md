@@ -29,4 +29,4 @@ Ensure you have the following installed:
       ```
 
 3. **Accessing the API:**
-    - Once the services are up, the GraphQL API can be accessed at `http://localhost:8000/graphql`.
+    - Once the services are up, the GraphQL API can be accessed at [http://localhost:8081/graphql](http://localhost:8081/graphql).
