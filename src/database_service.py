@@ -1,9 +1,13 @@
+import logging
 import os
+import time
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from src.model import Base
+
+logger = logging.getLogger(__name__)
 
 
 class DatabaseService:
@@ -20,6 +24,19 @@ class DatabaseService:
         finally:
             if hasattr(db, "close"):
                 db.close()
+
+
+def connect_to_db(database_url) -> DatabaseService:
+    while True:
+        try:
+            logger.info("Trying to connect to DB.")
+            database_service = DatabaseService(database_url=database_url)
+            logger.info("Connected to DB.")
+            break
+        except Exception as e:
+            logger.error(f"Couldn't connect to DB({database_url}): {e}, will try again shortly after.")
+            time.sleep(2)
+    return database_service
 
 
 if __name__ == '__main__':

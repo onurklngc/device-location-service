@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: fastapi_app
+    command: uvicorn main_web:app --host 0.0.0.0 --port 8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL
+
+
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+    ports:
+      - "3306:3306"
+
+  rabbitmq:
+    image: rabbitmq:3.13
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+
+  tcp_server:
+    build: .
+    container_name: tcp_server
+    command: python tcp_server.py
+    depends_on:
+      - rabbitmq
+    environment:
+      - TCP_SERVER_HOST
+      - TCP_SERVER_PORT
+      - RABBITMQ_HOST
+      - RABBITMQ_PORT
+      - RABBITMQ_GPS_QUEUE
+
+
+  data_generator:
+    build: .
+    container_name: data_generator
+    command: python iot_device.py
+    depends_on:
+      - tcp_server
+      - db
+    environment:
+      - TCP_SERVER_HOST
+      - TCP_SERVER_PORT
+      - RABBITMQ_HOST
+      - RABBITMQ_PORT
+      - RABBITMQ_GPS_QUEUE
+
+  data_processor:
+    build: .
+    container_name: data_processor
+    command: python gps_data_processor.py
+    depends_on:
+      - rabbitmq
+      - db
+    environment:
+      - RABBITMQ_HOST
+      - RABBITMQ_PORT
+      - RABBITMQ_GPS_QUEUE
+      - DATABASE_URL
+

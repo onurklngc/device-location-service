@@ -1,4 +1,3 @@
-import argparse
 import datetime
 import json
 import logging
@@ -7,10 +6,11 @@ import time
 
 import pika
 from dotenv import load_dotenv
+from sqlalchemy.exc import IntegrityError
 
 import config as cfg
-from src.database_service import DatabaseService
-from src.model import Location
+from src.database_service import connect_to_db
+from src.model import Location, LatestLocation
 
 INSERT_LOCATION_QUERY = """
     INSERT INTO `locations` (`device_id`, `latitude`, `longitude`, `timestamp`)
@@ -27,19 +27,7 @@ rabbitmq_gps_queue = os.getenv("RABBITMQ_GPS_QUEUE")
 
 class GPSDataProcessor:
     def __init__(self, database_url):
-        self.database_url = database_url
-        self.database_config = self.connect_to_db()
-
-    def connect_to_db(self):
-        while True:
-            try:
-                database_config = DatabaseService(database_url=self.database_url)
-                break
-            except Exception as e:
-                logger.error(f"Couldn't connect to DB: {e}, will try again shortly after.")
-                time.sleep(2)
-
-        return database_config
+        self.database_service = connect_to_db(database_url)
 
     def process_gps_data(self, message_body):
         try:
@@ -50,12 +38,18 @@ class GPSDataProcessor:
             timestamp = message_data["timestamp"]
             timestamp = datetime.datetime.utcfromtimestamp(timestamp)
 
-
-            db_location = Location(device_id=device_id, latitude=latitude, longitude=longitude, timestamp=timestamp)
-            db = next(self.database_config.get_db())
-            db.add(db_location)
+            db = next(self.database_service.get_db())
+            location = Location(device_id=device_id, latitude=latitude, longitude=longitude, timestamp=timestamp)
+            db.add(location)
+            db.flush()
+            db.refresh(location, attribute_names=["id"])
+            latest_location = LatestLocation(device_id=device_id, location_id=location.id)
+            db.merge(latest_location)
             db.commit()
             logger.info(f"Location data for device #{device_id} is saved successfully!")
+        except IntegrityError as e:
+            logger.info(f"Device is not registered!: {message_body}")
+            logger.debug(e.args)
         except Exception as e:
             logger.exception(f"Error processing GPS data: {e}\nBody: {message_body}")
 
@@ -90,6 +84,7 @@ class RabbitMQListener:
                 logger.info('Preparing to terminate...')
                 break
             except Exception:
+                time.sleep(1)
                 logger.exception("Error occurred while listening to the queue:")
 
 

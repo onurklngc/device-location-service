@@ -17,7 +17,6 @@ class DeviceType:
 
 @strawberry.type(name="Location")
 class LocationType:
-    id: int
     device_id: int
     latitude: float
     longitude: float

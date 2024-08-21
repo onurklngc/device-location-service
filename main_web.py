@@ -7,14 +7,14 @@ from sqlalchemy.orm import Session
 from strawberry import Schema
 from strawberry.fastapi import GraphQLRouter
 
-from src.database_service import DatabaseService
+from src.database_service import DatabaseService, connect_to_db
 from src.schema import Query, Mutation
 
 load_dotenv()
 
 app = FastAPI()
 database_url = os.getenv("DATABASE_URL")
-database_service = DatabaseService(database_url=database_url)
+database_service = connect_to_db(database_url)
 schema = Schema(query=Query, mutation=Mutation)
 
 
