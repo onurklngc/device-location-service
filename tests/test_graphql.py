@@ -76,13 +76,13 @@ def test_delete_device(client):
             name
         }
     }
-    """.replace("DEVICE_ID", device_create_result["data"]["createDevice"]["id"])
+    """.replace("DEVICE_ID", str(device_create_result["data"]["createDevice"]["id"]))
     response = client.post("/graphql", json={"query": query})
     data = response.json()
 
     assert response.status_code == 200
     assert data["data"]["deleteDevice"]["name"] == device_create_result["data"]["createDevice"]["name"]
-    assert data["data"]["createDevice"]["id"] is not None
+    assert data["data"]["deleteDevice"]["id"] is not None
 
 
 def test_all_devices(client):
