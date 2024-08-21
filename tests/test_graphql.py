@@ -64,11 +64,18 @@ def test_create_device(client):
     assert data["data"]["createDevice"]["name"] == "Test Device"
     assert data["data"]["createDevice"]["id"] is not None
 
-    return data
-
 
 def test_delete_device(client):
-    device_create_result = test_create_device(client)
+    query = """
+    mutation {
+        createDevice(input: { name: "Test Device" }) {
+            id
+            name
+        }
+    }
+    """
+    response = client.post("/graphql", json={"query": query})
+    device_create_result = response.json()
     query = """
     mutation {
         deleteDevice(input: { id: DEVICE_ID }) {

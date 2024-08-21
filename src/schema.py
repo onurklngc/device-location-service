@@ -37,13 +37,13 @@ class DeviceDeleteInput:
 @strawberry.type
 class Query:
     @strawberry.field
-    def all_devices(self, info) -> List[DeviceType]:
+    def all_devices(self, info: Info) -> List[DeviceType]:
         session: Session = info.context['db']
         devices = session.query(Device).all()
         return [DeviceType(id=device.id, name=device.name) for device in devices]
 
     @strawberry.field
-    def device_by_id(self, info, device_id: int) -> Optional[DeviceType]:
+    def device_by_id(self, info: Info, device_id: int) -> Optional[DeviceType]:
         session: Session = info.context['db']
         device = session.query(Device).filter(Device.id == device_id).first()
         if device:
@@ -51,7 +51,7 @@ class Query:
         return None
 
     @strawberry.field
-    def location_history_by_device(self, info, device_id: int) -> List[LocationType]:
+    def location_history_by_device(self, info: Info, device_id: int) -> List[LocationType]:
         session: Session = info.context['db']
         locations = get_location_history_by_device(device_id, session)
         return [
@@ -65,7 +65,7 @@ class Query:
         ]
 
     @strawberry.field
-    def last_locations(self, info) -> List[LocationType]:
+    def last_locations(self, info: Info) -> List[LocationType]:
         session: Session = info.context['db']
         last_locations = get_last_location_for_all_devices(session)
         return last_locations
