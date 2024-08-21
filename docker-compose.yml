@@ -12,7 +12,6 @@ services:
     environment:
       - DATABASE_URL
 
-
   db:
     image: mysql:8.0
     container_name: mysql
@@ -33,24 +32,11 @@ services:
   tcp_server:
     build: .
     container_name: tcp_server
+    ports:
+      - "65432:65432"
     command: python tcp_server.py
     depends_on:
       - rabbitmq
-    environment:
-      - TCP_SERVER_HOST
-      - TCP_SERVER_PORT
-      - RABBITMQ_HOST
-      - RABBITMQ_PORT
-      - RABBITMQ_GPS_QUEUE
-
-
-  data_generator:
-    build: .
-    container_name: data_generator
-    command: python iot_device.py
-    depends_on:
-      - tcp_server
-      - db
     environment:
       - TCP_SERVER_HOST
       - TCP_SERVER_PORT
@@ -70,4 +56,19 @@ services:
       - RABBITMQ_PORT
       - RABBITMQ_GPS_QUEUE
       - DATABASE_URL
+
+  data_generator:
+    build: .
+    container_name: data_generator
+    command: python gps_data_generator.py
+    depends_on:
+      - tcp_server
+      - web
+    environment:
+      - TCP_SERVER_HOST
+      - TCP_SERVER_PORT
+      - WEBSERVER_URL
+      - NUM_DEVICES_TO_CREATE
+      - DATA_GENERATION_INTERVAL_PER_DEVICE
+
 

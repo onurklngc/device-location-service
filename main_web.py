@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from strawberry import Schema
 from strawberry.fastapi import GraphQLRouter
 
-from src.database_service import DatabaseService, connect_to_db
 from src.schema import Query, Mutation
+from src.service.database_service import connect_to_db
 
 load_dotenv()
 

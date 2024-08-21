@@ -9,7 +9,7 @@ import time
 from dotenv import load_dotenv
 
 import config as cfg
-from src.publisher_service import RabbitMQPublisherService
+from src.service.publisher_service import RabbitMQPublisherService
 
 load_dotenv()
 tcp_server_host = os.getenv("TCP_SERVER_HOST", "0.0.0.0")

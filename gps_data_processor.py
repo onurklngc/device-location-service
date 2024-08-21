@@ -9,13 +9,8 @@ from dotenv import load_dotenv
 from sqlalchemy.exc import IntegrityError
 
 import config as cfg
-from src.database_service import connect_to_db
+from src.service.database_service import connect_to_db
 from src.model import Location, LatestLocation
-
-INSERT_LOCATION_QUERY = """
-    INSERT INTO `locations` (`device_id`, `latitude`, `longitude`, `timestamp`)
-    VALUES (%s, %s, %s, %s)
-"""
 
 load_dotenv()
 logger = logging.getLogger(__name__)
