@@ -8,13 +8,13 @@ import config as cfg
 
 TCP_SERVER_HOST = '127.0.0.1'
 TCP_SERVER_PORT = 65432
-DEVICE_ID = "car1"
+DEVICE_ID = 1
 DATA_SEND_INTERVAL = 5
 logger = logging.getLogger(__name__)
 
 
 class IoTDevice:
-    def __init__(self, device_id: str):
+    def __init__(self, device_id: int):
         self.device_id = device_id
         self.latitude = round(random.uniform(-90.0, 90.0), 6)
         self.longitude = round(random.uniform(-180.0, 180.0), 6)
@@ -32,7 +32,7 @@ class IoTDevice:
         }
 
 
-def send_gps_data(gps_data):
+def send_gps_data(gps_data: dict):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         try:
             sock.connect((TCP_SERVER_HOST, TCP_SERVER_PORT))
