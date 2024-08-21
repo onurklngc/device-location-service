@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import strawberry
 from sqlalchemy.orm import Session
+from strawberry import Info
 
 from src.model import Device
 from src.sql_query import get_location_history_by_device, get_last_location_for_all_devices
@@ -26,6 +27,11 @@ class LocationType:
 @strawberry.input
 class DeviceCreateInput:
     name: str
+
+
+@strawberry.input
+class DeviceDeleteInput:
+    id: int
 
 
 @strawberry.type
@@ -68,9 +74,23 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    def create_device(self, info, input: DeviceCreateInput) -> DeviceType:
+    def create_device(self, info: Info, input: DeviceCreateInput) -> DeviceType:
         session: Session = info.context['db']
         db_device = Device(name=input.name)
         session.add(db_device)
         session.commit()
         return DeviceType(id=db_device.id, name=db_device.name)
+
+    @strawberry.mutation
+    def delete_device(self, info: Info, input: DeviceDeleteInput) -> DeviceType:
+        session: Session = info.context['db']
+        device_to_delete = session.get(Device, input.id)
+        if not device_to_delete:
+            raise Exception("Device with ID %d not found" % input.id)
+        try:
+            session.delete(device_to_delete)
+            session.commit()
+            return DeviceType(id=device_to_delete.id, name=device_to_delete.name)
+        except Exception as e:
+            session.rollback()
+            raise Exception(f"Error deleting device: {str(e)}")
